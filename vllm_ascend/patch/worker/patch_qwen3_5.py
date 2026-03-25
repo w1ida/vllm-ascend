@@ -33,6 +33,32 @@ from vllm_ascend.utils import enable_sp
 
 
 class AscendQwen3_5GatedDeltaNet(Qwen3_5GatedDeltaNet):
+    def rearrange_mixed_qkv(
+        self, mixed_qkv: torch.Tensor
+    ) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
+        """Use view-based reshaping to reduce rearrange overhead."""
+        if mixed_qkv is None:
+            return None, None, None
+
+        query, key, value = torch.split(
+            mixed_qkv,
+            [
+                self.key_dim // self.tp_size,
+                self.key_dim // self.tp_size,
+                self.value_dim // self.tp_size,
+            ],
+            dim=-1,
+        )
+
+        num_heads_k = self.key_dim // self.tp_size // self.head_k_dim
+        num_heads_v = self.value_dim // self.tp_size // self.head_v_dim
+
+        query = query.view(1, -1, num_heads_k, self.head_k_dim)
+        key = key.view(1, -1, num_heads_k, self.head_k_dim)
+        value = value.view(1, -1, num_heads_v, self.head_v_dim)
+
+        return query.contiguous(), key.contiguous(), value.contiguous()
+
     def _forward_core(
         self,
         mixed_qkv: torch.Tensor,
