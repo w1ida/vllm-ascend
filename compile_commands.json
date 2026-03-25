@@ -1,0 +1,50 @@
+[
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++  -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -I/home/miniconda3/envs/notebook/include/python3.11 -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/vllm_ascend_kernels_interface.dir/vllm_ascend_kernels_stub.cpp.o -c /workspace/vllm-ascend/vllm_ascend_kernels_stub.cpp",
+  "file": "/workspace/vllm-ascend/vllm_ascend_kernels_stub.cpp",
+  "output": "CMakeFiles/vllm_ascend_kernels_interface.dir/vllm_ascend_kernels_stub.cpp.o"
+},
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++ -D_FORTIFY_SOURCE=2 -D_GLIBCXX_USE_CXX11_ABI=0 -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -I/home/miniconda3/envs/notebook/include/python3.11 -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -O3 -DNDEBUG -std=gnu++17 -fPIC -O2 -std=c++17 -fvisibility-inlines-hidden -fstack-protector-strong -o CMakeFiles/vllm_ascend_kernels_host_stub_obj.dir/auto_gen/vllm_ascend_kernels/host_stub.cpp.o -c /workspace/vllm-ascend/auto_gen/vllm_ascend_kernels/host_stub.cpp",
+  "file": "/workspace/vllm-ascend/auto_gen/vllm_ascend_kernels/host_stub.cpp",
+  "output": "CMakeFiles/vllm_ascend_kernels_host_stub_obj.dir/auto_gen/vllm_ascend_kernels/host_stub.cpp.o"
+},
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dvllm_ascend_C_EXPORTS -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -I/workspace/vllm-ascend/include/vllm_ascend_kernels -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/tikcpp/tikcfw -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -isystem /home/miniconda3/envs/notebook/include/python3.11 -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -O3 -DNDEBUG -std=gnu++17 -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects -o CMakeFiles/vllm_ascend_C.dir/csrc/aclnn_torch_adapter/NPUBridge.cpp.o -c /workspace/vllm-ascend/csrc/aclnn_torch_adapter/NPUBridge.cpp",
+  "file": "/workspace/vllm-ascend/csrc/aclnn_torch_adapter/NPUBridge.cpp",
+  "output": "CMakeFiles/vllm_ascend_C.dir/csrc/aclnn_torch_adapter/NPUBridge.cpp.o"
+},
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dvllm_ascend_C_EXPORTS -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -I/workspace/vllm-ascend/include/vllm_ascend_kernels -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/tikcpp/tikcfw -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -isystem /home/miniconda3/envs/notebook/include/python3.11 -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -O3 -DNDEBUG -std=gnu++17 -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects -o CMakeFiles/vllm_ascend_C.dir/csrc/aclnn_torch_adapter/NPUStorageImpl.cpp.o -c /workspace/vllm-ascend/csrc/aclnn_torch_adapter/NPUStorageImpl.cpp",
+  "file": "/workspace/vllm-ascend/csrc/aclnn_torch_adapter/NPUStorageImpl.cpp",
+  "output": "CMakeFiles/vllm_ascend_C.dir/csrc/aclnn_torch_adapter/NPUStorageImpl.cpp.o"
+},
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dvllm_ascend_C_EXPORTS -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -I/workspace/vllm-ascend/include/vllm_ascend_kernels -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/tikcpp/tikcfw -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -isystem /home/miniconda3/envs/notebook/include/python3.11 -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -O3 -DNDEBUG -std=gnu++17 -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects -o CMakeFiles/vllm_ascend_C.dir/csrc/batch_matmul_transpose/op_host/tiling/tiling_data.cpp.o -c /workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host/tiling/tiling_data.cpp",
+  "file": "/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host/tiling/tiling_data.cpp",
+  "output": "CMakeFiles/vllm_ascend_C.dir/csrc/batch_matmul_transpose/op_host/tiling/tiling_data.cpp.o"
+},
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dvllm_ascend_C_EXPORTS -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -I/workspace/vllm-ascend/include/vllm_ascend_kernels -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/tikcpp/tikcfw -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -isystem /home/miniconda3/envs/notebook/include/python3.11 -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -O3 -DNDEBUG -std=gnu++17 -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects -o CMakeFiles/vllm_ascend_C.dir/csrc/camem_allocator.cpp.o -c /workspace/vllm-ascend/csrc/camem_allocator.cpp",
+  "file": "/workspace/vllm-ascend/csrc/camem_allocator.cpp",
+  "output": "CMakeFiles/vllm_ascend_C.dir/csrc/camem_allocator.cpp.o"
+},
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dvllm_ascend_C_EXPORTS -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -I/workspace/vllm-ascend/include/vllm_ascend_kernels -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/tikcpp/tikcfw -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -isystem /home/miniconda3/envs/notebook/include/python3.11 -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -O3 -DNDEBUG -std=gnu++17 -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects -o CMakeFiles/vllm_ascend_C.dir/csrc/torch_binding.cpp.o -c /workspace/vllm-ascend/csrc/torch_binding.cpp",
+  "file": "/workspace/vllm-ascend/csrc/torch_binding.cpp",
+  "output": "CMakeFiles/vllm_ascend_C.dir/csrc/torch_binding.cpp.o"
+},
+{
+  "directory": "/workspace/vllm-ascend",
+  "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dvllm_ascend_C_EXPORTS -I/home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch_npu/include -I/usr/local/Ascend/cann-8.5.0/include -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/include/experiment/platform -I/usr/local/Ascend/cann-8.5.0/x86_64-linux/include/experiment/platform -I/workspace/vllm-ascend/csrc/batch_matmul_transpose/op_host -I/workspace/vllm-ascend/include/vllm_ascend_kernels -I/usr/local/Ascend/cann-8.5.0/aarch64-linux/tikcpp/tikcfw -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/pybind11/include -isystem /home/miniconda3/envs/notebook/include/python3.11 -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include -isystem /home/miniconda3/envs/notebook/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -O3 -DNDEBUG -std=gnu++17 -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects -o CMakeFiles/vllm_ascend_C.dir/csrc/torch_binding_meta.cpp.o -c /workspace/vllm-ascend/csrc/torch_binding_meta.cpp",
+  "file": "/workspace/vllm-ascend/csrc/torch_binding_meta.cpp",
+  "output": "CMakeFiles/vllm_ascend_C.dir/csrc/torch_binding_meta.cpp.o"
+}
+]

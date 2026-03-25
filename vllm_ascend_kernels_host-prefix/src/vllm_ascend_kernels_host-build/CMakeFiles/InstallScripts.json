@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/workspace/vllm-ascend/vllm_ascend_kernels_host-prefix/src/vllm_ascend_kernels_host-build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

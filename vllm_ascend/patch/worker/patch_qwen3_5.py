@@ -29,10 +29,37 @@ from vllm.v1.attention.backends.utils import PAD_SLOT_ID
 from vllm_ascend.attention.utils import maybe_save_kv_layer_to_connector
 from vllm_ascend.ops.triton.fla.sigmoid_gating import fused_sigmoid_gating_delta_rule_update
 from vllm_ascend.ops.triton.fused_gdn_gating import fused_gdn_gating_patch
+from vllm_ascend.ops.triton.rearrange_mixed_qkv import rearrange_mixed_qkv_optimized
 from vllm_ascend.utils import enable_sp
 
 
 class AscendQwen3_5GatedDeltaNet(Qwen3_5GatedDeltaNet):
+    def rearrange_mixed_qkv(
+        self, mixed_qkv: torch.Tensor
+    ) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
+        """Optimized version using torch.view instead of einops.rearrange."""
+        if mixed_qkv is None:
+            return None, None, None
+
+        # Split mixed_qkv into query, key, value
+        query, key, value = torch.split(
+            mixed_qkv,
+            [self.key_dim // self.tp_size, self.key_dim // self.tp_size, self.value_dim // self.tp_size],
+            dim=-1,
+        )
+
+        # Reshape using view (no copy, just stride change)
+        # l (h d) -> 1 l h d
+        num_heads_k = self.key_dim // self.tp_size // self.head_k_dim
+        num_heads_v = self.value_dim // self.tp_size // self.head_v_dim
+
+        query = query.view(1, -1, num_heads_k, self.head_k_dim)
+        key = key.view(1, -1, num_heads_k, self.head_k_dim)
+        value = value.view(1, -1, num_heads_v, self.head_v_dim)
+
+        # Make contiguous for subsequent operations
+        return query.contiguous(), key.contiguous(), value.contiguous()
+
     def _forward_core(
         self,
         mixed_qkv: torch.Tensor,

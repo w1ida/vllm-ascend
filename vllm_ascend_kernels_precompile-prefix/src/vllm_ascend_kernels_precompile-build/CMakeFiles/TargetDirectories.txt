@@ -1,0 +1,4 @@
+/workspace/vllm-ascend/vllm_ascend_kernels_precompile-prefix/src/vllm_ascend_kernels_precompile-build/CMakeFiles/precompile_obj.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_precompile-prefix/src/vllm_ascend_kernels_precompile-build/CMakeFiles/check_src_template.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_precompile-prefix/src/vllm_ascend_kernels_precompile-build/CMakeFiles/edit_cache.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_precompile-prefix/src/vllm_ascend_kernels_precompile-build/CMakeFiles/rebuild_cache.dir

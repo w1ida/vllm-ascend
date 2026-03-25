@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/workspace/vllm-ascend/vllm_ascend_kernels_aiv_device-prefix/src/vllm_ascend_kernels_aiv_device-build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -297,6 +297,7 @@ class NPUModelRunner(GPUModelRunner):
             0,
             self.dtype,
             None,
+            None,  # block_size
             use_mla=self.model_config.use_mla,
             use_sparse=self.use_sparse,
             use_mm_prefix=self.model_config is not None and self.model_config.is_mm_prefix_lm,
@@ -1379,9 +1380,7 @@ class NPUModelRunner(GPUModelRunner):
             ),
             self.maybe_get_kv_connector_output(
                 scheduler_output,
-                **(
-                    {"defer_finalize": not clear_kv_metadata}
-                ),
+                clear_metadata=clear_kv_metadata,
             ) as kv_connector_output,
         ):
             hidden_states = self._model_forward(

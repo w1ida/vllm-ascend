@@ -1,0 +1,6 @@
+/workspace/vllm-ascend/vllm_ascend_kernels_aic_device-prefix/src/vllm_ascend_kernels_aic_device-build/CMakeFiles/device_obj.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_aic_device-prefix/src/vllm_ascend_kernels_aic_device-build/CMakeFiles/merge_device_obj.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_aic_device-prefix/src/vllm_ascend_kernels_aic_device-build/CMakeFiles/device_aic_obj.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_aic_device-prefix/src/vllm_ascend_kernels_aic_device-build/CMakeFiles/merge_aic_device_obj.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_aic_device-prefix/src/vllm_ascend_kernels_aic_device-build/CMakeFiles/edit_cache.dir
+/workspace/vllm-ascend/vllm_ascend_kernels_aic_device-prefix/src/vllm_ascend_kernels_aic_device-build/CMakeFiles/rebuild_cache.dir

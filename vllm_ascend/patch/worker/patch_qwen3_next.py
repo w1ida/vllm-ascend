@@ -18,7 +18,6 @@
 
 import torch
 import torch_npu
-from einops import rearrange
 from vllm.forward_context import get_forward_context
 from vllm.model_executor.layers.fla.ops import chunk_gated_delta_rule
 from vllm.model_executor.layers.fla.ops.l2norm import l2norm_fwd
@@ -34,8 +33,33 @@ from vllm_ascend.ops.triton.fla.fused_qkvzba_split_reshape import fused_qkvzba_s
 from vllm_ascend.ops.triton.fused_gdn_gating import fused_gdn_gating_patch
 from vllm_ascend.utils import enable_sp
 
-
 class AscendQwen3Next_GatedDeltaNet(Qwen3NextGatedDeltaNet):
+    def rearrange_mixed_qkv(
+        self, mixed_qkv: torch.Tensor
+    ) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
+        """Optimized version using torch.view instead of einops.rearrange."""
+        if mixed_qkv is None:
+            return None, None, None
+
+        # Split mixed_qkv into query, key, value
+        query, key, value = torch.split(
+            mixed_qkv,
+            [self.key_dim // self.tp_size, self.key_dim // self.tp_size, self.value_dim // self.tp_size],
+            dim=-1,
+        )
+
+        # Reshape using view (no copy, just stride change)
+        # l (h d) -> 1 l h d
+        num_heads_k = self.key_dim // self.tp_size // self.head_k_dim
+        num_heads_v = self.value_dim // self.tp_size // self.head_v_dim
+
+        query = query.view(1, -1, num_heads_k, self.head_k_dim)
+        key = key.view(1, -1, num_heads_k, self.head_k_dim)
+        value = value.view(1, -1, num_heads_v, self.head_v_dim)
+
+        # Make contiguous for subsequent operations
+        return query.contiguous(), key.contiguous(), value.contiguous()
+
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -93,7 +117,8 @@ class AscendQwen3Next_GatedDeltaNet(Qwen3NextGatedDeltaNet):
         z = z.reshape(-1, z.shape[-1])
         core_attn_out = self.norm(core_attn_out, z)
         core_attn_out = core_attn_out.reshape(z_shape_og)
-        core_attn_out = rearrange(core_attn_out, "... h d -> ... (h d)")
+        # Use reshape instead of einops.rearrange for better performance
+        core_attn_out = core_attn_out.reshape(*core_attn_out.shape[:-2], -1)
         output[:num_tokens], _ = self.out_proj(core_attn_out)
 
     def _forward_core(
