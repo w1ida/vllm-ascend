@@ -697,6 +697,27 @@ std::vector<at::Tensor> moe_grouped_matmul(
     return y;
 }
 
+at::Tensor npu_recurrent_gated_delta_rule(
+    const at::Tensor& query,
+    const at::Tensor& key,
+    const at::Tensor& value,
+    const at::Tensor& g,
+    const at::Tensor& beta,
+    at::Tensor& state,
+    float scale,
+    const at::Tensor& actual_seq_lengths,
+    const at::Tensor& ssm_state_indices,
+    const c10::optional<at::Tensor>& num_accepted_tokens)
+{
+    at::Tensor out = at::empty_like(query);
+    c10::optional<at::Tensor> gk = c10::nullopt;
+    EXEC_NPU_CMD(aclnnRecurrentGatedDeltaRule,
+                 query, key, value, beta, state,
+                 actual_seq_lengths, ssm_state_indices,
+                 g, gk, num_accepted_tokens, scale, out);
+    return out;
+}
+
 } // namespace vllm_ascend
 
 TORCH_LIBRARY_EXPAND(CONCAT(_C, _ascend), ops)
@@ -903,6 +924,24 @@ TORCH_LIBRARY_EXPAND(CONCAT(_C, _ascend), ops)
         "                         int run_mode"
         ") -> (Tensor output)");
     ops.impl("npu_causal_conv1d_custom", torch::kPrivateUse1, &vllm_ascend::npu_causal_conv1d_custom);
+    // This operator provides FP32 ssm_state support for Qwen3.5 GatedDeltaNet decode,
+    // replacing the slower Triton fallback until the CANN SDK is updated.
+    ops.def(
+        "npu_recurrent_gated_delta_rule("
+        "  Tensor query,"
+        "  Tensor key,"
+        "  Tensor value,"
+        "  Tensor g,"
+        "  Tensor beta,"
+        "  Tensor(a!) state,"
+        "  float scale,"
+        "  Tensor actual_seq_lengths,"
+        "  Tensor ssm_state_indices,"
+        "  Tensor? num_accepted_tokens"
+        ") -> Tensor"
+    );
+    ops.impl("npu_recurrent_gated_delta_rule", torch::kPrivateUse1,
+             &vllm_ascend::npu_recurrent_gated_delta_rule);
     ops.def(
         "moe_grouped_matmul("
             "Tensor x,"

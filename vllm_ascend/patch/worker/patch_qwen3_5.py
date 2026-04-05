@@ -31,7 +31,6 @@ from vllm.v1.attention.backends.utils import PAD_SLOT_ID
 
 from vllm_ascend.ascend_forward_context import _EXTRA_CTX
 from vllm_ascend.attention.utils import maybe_save_kv_layer_to_connector
-from vllm_ascend.ops.triton.fla.sigmoid_gating import fused_sigmoid_gating_delta_rule_update
 from vllm_ascend.ops.triton.fused_gdn_gating import fused_gdn_gating_patch
 from vllm_ascend.utils import enable_sp, vllm_version_is
 
@@ -112,10 +111,10 @@ class AscendQwen3_5GatedDeltaNet(Qwen3_5GatedDeltaNet):
         # Core attention computation (called by custom op).
 
         # NOTE: The processing logic of Qwen3_5GatedDeltaNet is the same as Qwen3NextGatedDeltaNet.
-        # However, because the ops `torch_npu.npu_recurrent_gated_delta_rule`
-        # currently does not support `ssm_state` inputs in float32 format,
-        # we temporarily retain the current _forward_core implementation.
-        # Once the ops supports float32 `ssm_state`, this patch should be removed.
+        # `torch_npu.npu_recurrent_gated_delta_rule` does not yet support float32 ssm_state.
+        # We use `torch.ops._C_ascend.npu_recurrent_gated_delta_rule`, a custom operator built
+        # into vllm-ascend/csrc from the ops-transformer implementation that adds FP32 state support.
+        # This patch can be removed once the CANN SDK ships the updated operator.
 
         forward_context = get_forward_context()
         attn_metadata: AttentionMetadata = forward_context.attn_metadata
@@ -290,21 +289,22 @@ class AscendQwen3_5GatedDeltaNet(Qwen3_5GatedDeltaNet):
                 core_attn_out_non_spec, last_recurrent_state = None, None
 
         elif attn_metadata.num_decodes > 0:
-            core_attn_out_non_spec = fused_sigmoid_gating_delta_rule_update(
-                A_log=self.A_log.contiguous(),
-                dt_bias=self.dt_bias.contiguous(),
-                q=query_non_spec.contiguous(),
-                k=key_non_spec.contiguous(),
-                v=value_non_spec.contiguous(),
-                a=a.contiguous(),
-                b=b.contiguous(),
-                initial_state_source=ssm_state,
-                initial_state_indices=non_spec_state_indices_tensor,
-                cu_seqlens=non_spec_query_start_loc,
-                use_qk_l2norm_in_kernel=True,
-                softplus_beta=1.0,
-                softplus_threshold=20.0,
-            )
+            g, beta = fused_gdn_gating_patch(self.A_log, a, b, self.dt_bias)
+            actual_seq_lengths = (
+                non_spec_query_start_loc[1:] - non_spec_query_start_loc[:-1]
+            ).to(torch.int32)
+            core_attn_out_non_spec = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(
+                query=query_non_spec.squeeze(0),
+                key=key_non_spec.squeeze(0),
+                value=value_non_spec.squeeze(0),
+                g=g.squeeze(0),
+                beta=beta.squeeze(0),
+                state=ssm_state,
+                scale=key_non_spec.shape[-1] ** -0.5,
+                actual_seq_lengths=actual_seq_lengths,
+                ssm_state_indices=non_spec_state_indices_tensor,
+                num_accepted_tokens=None,
+            ).unsqueeze(0)
 
         # 3. Merge core attention output
         if spec_sequence_masks is not None and core_attn_out_non_spec is not None:
