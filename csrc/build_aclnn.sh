@@ -75,7 +75,7 @@ fi
 
 # build custom ops
 cd csrc
-rm -rf build output
+#rm -rf build output
 echo "building custom ops $CUSTOM_OPS for $SOC_VERSION"
 bash build.sh -n "$CUSTOM_OPS" -c "$SOC_ARG"
 
