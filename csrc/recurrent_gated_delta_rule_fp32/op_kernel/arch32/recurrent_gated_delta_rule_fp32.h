@@ -18,9 +18,9 @@
 
 #include "kernel_operator.h"
 #include "lib/matmul_intf.h"
-#include "../recurrent_gated_delta_rule_tiling_data.h"
+#include "../recurrent_gated_delta_rule_fp32_tiling_data.h"
 
-namespace RecurrentGatedDeltaRule {
+namespace RecurrentGatedDeltaRuleFp32 {
 
 using namespace matmul;
 using namespace AscendC;
@@ -49,7 +49,7 @@ struct RGDRInitParams {
 template <typename inType, typename outType, typename stateType = inType>
 class RGDR {
 public:
-    __aicore__ inline RGDR(const RecurrentGatedDeltaRuleTilingData *tilingData)
+    __aicore__ inline RGDR(const RecurrentGatedDeltaRuleFp32TilingData *tilingData)
     {
         B_ = tilingData->b;
         T_ = tilingData->t;
@@ -425,5 +425,5 @@ private:
     float scale_;
     uint64_t blockIdx;
 };
-} // namespace RecurrentGatedDeltaRule
+} // namespace RecurrentGatedDeltaRuleFp32
 #endif

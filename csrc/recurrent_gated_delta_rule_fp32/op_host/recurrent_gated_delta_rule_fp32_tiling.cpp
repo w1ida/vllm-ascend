@@ -12,7 +12,7 @@
  * \file recurrent_gated_delta_rule_tiling.cpp
  * \brief
  */
-#include "recurrent_gated_delta_rule_tiling.h"
+#include "recurrent_gated_delta_rule_fp32_tiling.h"
 
 #include "../tiling_base/tiling_templates_registry.h"
 #include "register/op_def_registry.h"
@@ -23,7 +23,7 @@
 
 namespace optiling {
 
-REGISTER_OPS_TILING_TEMPLATE(RecurrentGatedDeltaRule, RecurrentGatedDeltaRuleTiling, 0);
+REGISTER_OPS_TILING_TEMPLATE(RecurrentGatedDeltaRuleFp32, RecurrentGatedDeltaRuleFp32Tiling, 0);
 
 const size_t QUERY_INDEX = 0;
 const size_t KEY_INDEX = 1;
@@ -54,7 +54,7 @@ const size_t DIM_3 = 3;
 
 const size_t MAX_MTP = 8;
 
-void RecurrentGatedDeltaRuleTiling::InitCompileInfo()
+void RecurrentGatedDeltaRuleFp32Tiling::InitCompileInfo()
 {
     auto platformInfoPtr = context_->GetPlatformInfo();
     if (platformInfoPtr == nullptr) {
@@ -72,12 +72,12 @@ void RecurrentGatedDeltaRuleTiling::InitCompileInfo()
     tilingData_.vectorCoreNum = compileInfo_.aivNum;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::GetPlatformInfo()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::GetPlatformInfo()
 {
     return ge::GRAPH_SUCCESS;
 };
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::GetShapeAttrsInfo()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::GetShapeAttrsInfo()
 {
     OP_CHECK_IF(CheckContext() != ge::GRAPH_SUCCESS, OP_LOGE(inputParams_.opName, "Invalid context."),
                 return ge::GRAPH_FAILED);
@@ -100,7 +100,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::GetShapeAttrsInfo()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::DoOpTiling()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::DoOpTiling()
 {
     OP_CHECK_IF(CalUbSize() != ge::GRAPH_SUCCESS, OP_LOGE(inputParams_.opName, "CalUbSize failed."),
                 return ge::GRAPH_FAILED);
@@ -109,18 +109,18 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::DoOpTiling()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::DoLibApiTiling()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::DoLibApiTiling()
 {
     tilingKey_ = 0;
     return ge::GRAPH_SUCCESS;
 };
 
-uint64_t RecurrentGatedDeltaRuleTiling::GetTilingKey() const
+uint64_t RecurrentGatedDeltaRuleFp32Tiling::GetTilingKey() const
 {
     return tilingKey_;
 };
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::GetWorkspaceSize()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::GetWorkspaceSize()
 {
     // system workspace size is 16 * 1024 * 1024 = 16M;
     constexpr int64_t sysWorkspaceSize = 16777216;
@@ -129,10 +129,10 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::GetWorkspaceSize()
     return ge::GRAPH_SUCCESS;
 };
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::PostTiling()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::PostTiling()
 {
     context_->SetBlockDim(tilingData_.vectorCoreNum);
-    auto tilingDataSize = sizeof(RecurrentGatedDeltaRuleTilingData);
+    auto tilingDataSize = sizeof(RecurrentGatedDeltaRuleFp32TilingData);
     errno_t ret = memcpy_s(context_->GetRawTilingData()->GetData(), context_->GetRawTilingData()->GetCapacity(),
                            reinterpret_cast<void *>(&tilingData_), tilingDataSize);
     if (ret != EOK) {
@@ -149,7 +149,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::PostTiling()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::CheckOptionalInputContext(const size_t optionalIndex, const std::string &optionalName)
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::CheckOptionalInputContext(const size_t optionalIndex, const std::string &optionalName)
 {
     OP_CHECK_IF(context_->GetOptionalInputDesc(optionalIndex) == nullptr && context_->GetOptionalInputTensor(optionalIndex) != nullptr,
         OP_LOGE(context_->GetNodeName(), "The desc of %s is nullptr, but the tensor of %s is not nullptr. They must be either both null or both non-null.",
@@ -162,7 +162,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::CheckOptionalInputContext(const s
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::CheckContext()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::CheckContext()
 {
     OP_CHECK_NULL_WITH_CONTEXT(context_, context_->GetInputShape(QUERY_INDEX));
     OP_CHECK_NULL_WITH_CONTEXT(context_, context_->GetInputDesc(QUERY_INDEX));
@@ -197,7 +197,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::CheckContext()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeDtype()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::AnalyzeDtype()
 {
     auto queryDtype = context_->GetInputDesc(QUERY_INDEX)->GetDataType();
     auto keyDtype = context_->GetInputDesc(KEY_INDEX)->GetDataType();
@@ -249,7 +249,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeDtype()
 }
 
 // 检查维度数量是否符合预期
-bool RecurrentGatedDeltaRuleTiling::CheckDim(const gert::Shape shape, const size_t dim, const std::string &dimDesc)
+bool RecurrentGatedDeltaRuleFp32Tiling::CheckDim(const gert::Shape shape, const size_t dim, const std::string &dimDesc)
 {
     if (shape.GetDimNum() != dim) {
         OP_LOGE(context_->GetNodeName(), "The number of dimensons of %s should be %zu, but it is %zu.",
@@ -259,7 +259,7 @@ bool RecurrentGatedDeltaRuleTiling::CheckDim(const gert::Shape shape, const size
     return true;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeShapesParser()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::AnalyzeShapesParser()
 {
     const auto &queryShape = context_->GetInputShape(QUERY_INDEX)->GetStorageShape();
     const auto &keyShape = context_->GetInputShape(KEY_INDEX)->GetStorageShape();
@@ -312,7 +312,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeShapesParser()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeEmptyTensor()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::AnalyzeEmptyTensor()
 {
     OP_CHECK_IF(context_->GetInputShape(QUERY_INDEX)->GetStorageShape().GetShapeSize() == 0,
         OP_LOGE(inputParams_.opName, "query not support empty tensor."),
@@ -350,7 +350,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeEmptyTensor()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeOptionalShapes()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::AnalyzeOptionalShapes()
 {
     // g (T, NV)
     gert::Shape expectGShape = gert::Shape({tilingData_.t, tilingData_.nv});
@@ -386,7 +386,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeOptionalShapes()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeShapes()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::AnalyzeShapes()
 {
     const auto &queryShape = context_->GetInputShape(QUERY_INDEX)->GetStorageShape();
     const auto &keyShape = context_->GetInputShape(KEY_INDEX)->GetStorageShape();
@@ -463,7 +463,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeShapes()
 }
 
 // 检查是否为FormatND格式
-bool RecurrentGatedDeltaRuleTiling::CheckFormat(ge::Format format, const std::string &Desc)
+bool RecurrentGatedDeltaRuleFp32Tiling::CheckFormat(ge::Format format, const std::string &Desc)
 {
     if (format == ge::FORMAT_FRACTAL_NZ) {
         OP_LOGE(context_->GetNodeName(), "%s format not support NZ", Desc.c_str());
@@ -472,7 +472,7 @@ bool RecurrentGatedDeltaRuleTiling::CheckFormat(ge::Format format, const std::st
     return true;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeFormat()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::AnalyzeFormat()
 {
     if (!CheckFormat(context_->GetInputDesc(QUERY_INDEX)->GetStorageFormat(), "query") ||
         !CheckFormat(context_->GetInputDesc(KEY_INDEX)->GetStorageFormat(), "key") ||
@@ -502,7 +502,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::AnalyzeFormat()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::GetScale()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::GetScale()
 {
     auto attrs = context_->GetAttrs();
     float scaleValue = *attrs->GetAttrPointer<float>(0);
@@ -511,7 +511,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::GetScale()
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::GetOptionalInput()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::GetOptionalInput()
 {
     if (context_->GetOptionalInputDesc(G_INDEX) != nullptr && context_->GetOptionalInputTensor(G_INDEX) != nullptr) {
         tilingData_.hasGama = 1;
@@ -533,7 +533,7 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::GetOptionalInput()
     return ge::GRAPH_SUCCESS;
 }
 
-void RecurrentGatedDeltaRuleTiling::PrintTilingData()
+void RecurrentGatedDeltaRuleFp32Tiling::PrintTilingData()
 {
     OP_LOGD(context_->GetNodeName(), "vectorCoreNum: [%u]", tilingData_.vectorCoreNum);
     OP_LOGD(context_->GetNodeName(), "ubCalSize: [%u]", tilingData_.ubCalSize);
@@ -553,7 +553,7 @@ void RecurrentGatedDeltaRuleTiling::PrintTilingData()
     OP_LOGD(context_->GetNodeName(), "stateIsFp32: [%u]", tilingData_.stateIsFp32);
 }
 
-ge::graphStatus RecurrentGatedDeltaRuleTiling::CalUbSize()
+ge::graphStatus RecurrentGatedDeltaRuleFp32Tiling::CalUbSize()
 {
     int64_t ubSize = compileInfo_.ubSize;
     int64_t aNv = Ops::Base::CeilAlign(tilingData_.nv, static_cast<uint32_t>(16)); // 16 * 2 = 32B
@@ -589,30 +589,30 @@ ge::graphStatus RecurrentGatedDeltaRuleTiling::CalUbSize()
 }
 
 
-static ge::graphStatus RecurrentGatedDeltaRuleTilingFunc(gert::TilingContext *context)
+static ge::graphStatus RecurrentGatedDeltaRuleFp32TilingFunc(gert::TilingContext *context)
 {
-    OP_CHECK_IF(context == nullptr, OPS_REPORT_CUBE_INNER_ERR("RecurrentGatedDeltaRule", "context is null."),
+    OP_CHECK_IF(context == nullptr, OPS_REPORT_CUBE_INNER_ERR("RecurrentGatedDeltaRuleFp32", "context is null."),
                 return ge::GRAPH_FAILED);
     return Ops::Transformer::OpTiling::TilingRegistry::GetInstance().DoTilingImpl(context);
 }
 
-static ge::graphStatus TilingPrepareForRecurrentGatedDeltaRule(gert::TilingParseContext *context)
+static ge::graphStatus TilingPrepareForRecurrentGatedDeltaRuleFp32(gert::TilingParseContext *context)
 {
-    OP_CHECK_IF(context == nullptr, OPS_REPORT_CUBE_INNER_ERR("RecurrentGatedDeltaRule", "context is null."),
+    OP_CHECK_IF(context == nullptr, OPS_REPORT_CUBE_INNER_ERR("RecurrentGatedDeltaRuleFp32", "context is null."),
                 return ge::GRAPH_FAILED);
 
     fe::PlatFormInfos *platformInfo = context->GetPlatformInfo();
     OP_CHECK_IF(platformInfo == nullptr, OPS_REPORT_CUBE_INNER_ERR(context->GetNodeName(), "platformInfoPtr is null."),
                 return ge::GRAPH_FAILED);
 
-    auto compileInfoPtr = context->GetCompiledInfo<RecurrentGatedDeltaRuleCompileInfo>();
+    auto compileInfoPtr = context->GetCompiledInfo<RecurrentGatedDeltaRuleFp32CompileInfo>();
     OP_CHECK_IF(compileInfoPtr == nullptr, OPS_REPORT_CUBE_INNER_ERR(context->GetNodeName(), "compileInfoPtr is null."),
                 return ge::GRAPH_FAILED);
 
     return ge::GRAPH_SUCCESS;
 }
 
-IMPL_OP_OPTILING(RecurrentGatedDeltaRule)
-    .Tiling(RecurrentGatedDeltaRuleTilingFunc)
-    .TilingParse<RecurrentGatedDeltaRuleCompileInfo>(TilingPrepareForRecurrentGatedDeltaRule);
+IMPL_OP_OPTILING(RecurrentGatedDeltaRuleFp32)
+    .Tiling(RecurrentGatedDeltaRuleFp32TilingFunc)
+    .TilingParse<RecurrentGatedDeltaRuleFp32CompileInfo>(TilingPrepareForRecurrentGatedDeltaRuleFp32);
 } // namespace optiling

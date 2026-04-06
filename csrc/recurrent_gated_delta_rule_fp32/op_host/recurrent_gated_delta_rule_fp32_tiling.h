@@ -18,29 +18,29 @@
 #include "register/tilingdata_base.h"
 #include "../tiling_base/tiling_base.h"
 #include "error_log.h"
-#include "../op_kernel/recurrent_gated_delta_rule_tiling_data.h"
+#include "../op_kernel/recurrent_gated_delta_rule_fp32_tiling_data.h"
 
 namespace optiling {
-using namespace RecurrentGatedDeltaRule;
+using namespace RecurrentGatedDeltaRuleFp32;
 
-struct RecurrentGatedDeltaRuleCompileInfo {
+struct RecurrentGatedDeltaRuleFp32CompileInfo {
     uint64_t aivNum{0UL};
     uint64_t ubSize{0UL};
 };
 
-struct RecurrentGatedDeltaRuleInfo {
+struct RecurrentGatedDeltaRuleFp32Info {
 public:
     int64_t usedCoreNum = 0;
-    const char *opName = "RecurrentGatedDeltaRule";
+    const char *opName = "RecurrentGatedDeltaRuleFp32";
 };
 
-class RecurrentGatedDeltaRuleTiling : public Ops::Transformer::OpTiling::TilingBaseClass {
+class RecurrentGatedDeltaRuleFp32Tiling : public Ops::Transformer::OpTiling::TilingBaseClass {
 public:
-    explicit RecurrentGatedDeltaRuleTiling(gert::TilingContext *context) : Ops::Transformer::OpTiling::TilingBaseClass(context)
+    explicit RecurrentGatedDeltaRuleFp32Tiling(gert::TilingContext *context) : Ops::Transformer::OpTiling::TilingBaseClass(context)
     {
         InitCompileInfo();
     };
-    ~RecurrentGatedDeltaRuleTiling() override = default;
+    ~RecurrentGatedDeltaRuleFp32Tiling() override = default;
 
 protected:
     bool IsCapable() override
@@ -81,9 +81,9 @@ protected:
     bool CheckDim(const gert::Shape shape, const size_t dim, const std::string &dimDesc);
     bool CheckFormat(ge::Format format, const std::string &Desc);
 
-    RecurrentGatedDeltaRuleCompileInfo compileInfo_;
-    RecurrentGatedDeltaRuleTilingData tilingData_;
-    RecurrentGatedDeltaRuleInfo inputParams_;
+    RecurrentGatedDeltaRuleFp32CompileInfo compileInfo_;
+    RecurrentGatedDeltaRuleFp32TilingData tilingData_;
+    RecurrentGatedDeltaRuleFp32Info inputParams_;
 };
 
 } // namespace optiling

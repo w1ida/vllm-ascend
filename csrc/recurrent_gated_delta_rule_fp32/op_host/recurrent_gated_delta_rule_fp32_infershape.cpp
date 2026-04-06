@@ -36,10 +36,10 @@ const size_t DIM_1 = 1;
 const size_t DIM_2 = 2;
 const size_t DIM_3 = 3;
 
-static ge::graphStatus InferShapeRecurrentGatedDeltaRule(InferShapeContext *context)
+static ge::graphStatus InferShapeRecurrentGatedDeltaRuleFp32(InferShapeContext *context)
 {
     if (context == nullptr) {
-        OP_LOGE("RecurrentGatedDeltaRule", "inference context is null");
+        OP_LOGE("RecurrentGatedDeltaRuleFp32", "inference context is null");
         return ge::GRAPH_FAILED;
     }
 
@@ -74,14 +74,14 @@ static ge::graphStatus InferShapeRecurrentGatedDeltaRule(InferShapeContext *cont
     return ge::GRAPH_SUCCESS;
 }
 
-static ge::graphStatus InferDataTypeRecurrentGatedDeltaRule(gert::InferDataTypeContext *context)
+static ge::graphStatus InferDataTypeRecurrentGatedDeltaRuleFp32(gert::InferDataTypeContext *context)
 {
     context->SetOutputDataType(0, ge::DT_BF16);
     context->SetOutputDataType(1, context->GetInputDataType(STATE_INDEX));
     return ge::GRAPH_SUCCESS;
 }
 
-IMPL_OP_INFERSHAPE(RecurrentGatedDeltaRule)
-    .InferShape(InferShapeRecurrentGatedDeltaRule)
-    .InferDataType(InferDataTypeRecurrentGatedDeltaRule);
+IMPL_OP_INFERSHAPE(RecurrentGatedDeltaRuleFp32)
+    .InferShape(InferShapeRecurrentGatedDeltaRuleFp32)
+    .InferDataType(InferDataTypeRecurrentGatedDeltaRuleFp32);
 } // namespace ops

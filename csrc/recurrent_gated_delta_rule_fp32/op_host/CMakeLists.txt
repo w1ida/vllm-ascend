@@ -15,15 +15,15 @@ add_ops_compile_options(
 )
 
 target_sources(op_host_aclnn PRIVATE
-        recurrent_gated_delta_rule_def.cpp
+        recurrent_gated_delta_rule_fp32_def.cpp
 )
 
 target_sources(optiling PRIVATE
-        recurrent_gated_delta_rule_tiling.cpp
+        recurrent_gated_delta_rule_fp32_tiling.cpp
 )
 
 target_sources(opsproto PRIVATE
-        recurrent_gated_delta_rule_infershape.cpp
+        recurrent_gated_delta_rule_fp32_infershape.cpp
 )
 
 target_include_directories(optiling PRIVATE

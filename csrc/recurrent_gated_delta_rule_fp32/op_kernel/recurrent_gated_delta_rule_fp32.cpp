@@ -12,21 +12,21 @@
  * \file recurrent_gated_delta_rule.cpp
  * \brief
  */
-#include "arch32/recurrent_gated_delta_rule.h"
-#include "recurrent_gated_delta_rule_tiling_data.h"
+#include "arch32/recurrent_gated_delta_rule_fp32.h"
+#include "recurrent_gated_delta_rule_fp32_tiling_data.h"
 
 
 using namespace AscendC;
 using namespace matmul;
-using namespace RecurrentGatedDeltaRule;
+using namespace RecurrentGatedDeltaRuleFp32;
 
 
 extern "C" __global__ __aicore__ void
-recurrent_gated_delta_rule(GM_ADDR query, GM_ADDR key, GM_ADDR value, GM_ADDR beta, GM_ADDR state, GM_ADDR cuSeqlens,
+recurrent_gated_delta_rule_fp32(GM_ADDR query, GM_ADDR key, GM_ADDR value, GM_ADDR beta, GM_ADDR state, GM_ADDR cuSeqlens,
                            GM_ADDR ssmStateIndices, GM_ADDR g, GM_ADDR gk, GM_ADDR numAcceptedTokens, GM_ADDR out,
                            GM_ADDR stateOut, GM_ADDR workspaceGM, GM_ADDR tilingGM)
 {
-    REGISTER_TILING_DEFAULT(RecurrentGatedDeltaRuleTilingData);
+    REGISTER_TILING_DEFAULT(RecurrentGatedDeltaRuleFp32TilingData);
     GET_TILING_DATA(tilingData, tilingGM);
     KERNEL_TASK_TYPE_DEFAULT(KERNEL_TYPE_AIV_ONLY);
     TPipe pipe;

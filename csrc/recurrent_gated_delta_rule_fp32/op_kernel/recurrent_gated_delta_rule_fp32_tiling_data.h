@@ -17,9 +17,9 @@
 
 #include "kernel_tiling/kernel_tiling.h"
 
-namespace RecurrentGatedDeltaRule {
+namespace RecurrentGatedDeltaRuleFp32 {
 #pragma pack(push, 8)
-struct alignas(8) RecurrentGatedDeltaRuleTilingData { // alignas(8)确保8字节对齐
+struct alignas(8) RecurrentGatedDeltaRuleFp32TilingData { // alignas(8)确保8字节对齐
     uint32_t vectorCoreNum;
     uint32_t ubCalSize;
     uint32_t ubRestBytes;
@@ -38,6 +38,6 @@ struct alignas(8) RecurrentGatedDeltaRuleTilingData { // alignas(8)确保8字节
     uint32_t stateIsFp32;
 };
 #pragma pack(pop)
-} // RecurrentGatedDeltaRule
+} // RecurrentGatedDeltaRuleFp32
 
 #endif // RECURRENT_GATED_DELTA_RULE_TILING_DATA_H
