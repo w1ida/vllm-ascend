@@ -162,15 +162,4 @@ namespace vllm_ascend {
         const uint32_t block_dim
     );
 
-    at::Tensor npu_recurrent_gated_delta_rule(
-        const at::Tensor& query,
-        const at::Tensor& key,
-        const at::Tensor& value,
-        const at::Tensor& g,
-        const at::Tensor& beta,
-        at::Tensor& state,
-        float scale,
-        const at::Tensor& actual_seq_lengths,
-        const at::Tensor& ssm_state_indices,
-        const c10::optional<at::Tensor>& num_accepted_tokens);
 }

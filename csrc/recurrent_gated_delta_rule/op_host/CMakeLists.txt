@@ -20,9 +20,16 @@ target_sources(op_host_aclnn PRIVATE
 
 target_sources(optiling PRIVATE
         recurrent_gated_delta_rule_tiling.cpp
+)
+
+target_sources(opsproto PRIVATE
         recurrent_gated_delta_rule_infershape.cpp
 )
 
 target_include_directories(optiling PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_include_directories(opsproto PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

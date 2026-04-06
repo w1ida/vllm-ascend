@@ -21,8 +21,7 @@
 #include "exe_graph/runtime/shape.h"
 #include "exe_graph/runtime/storage_shape.h"
 #include "register/op_impl_registry.h"
-#include "log/log.h"
-#include "err/ops_err.h"
+#include "error_log.h"
 
 using namespace gert;
 namespace ops {

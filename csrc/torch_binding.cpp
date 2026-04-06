@@ -43,6 +43,7 @@
 #include "moe_init_routing_custom/moe_init_routing_custom_torch_adpt.h"
 #include "sparse_flash_attention/sparse_flash_attention_torch_adpt.h"
 #include "lightning_indexer_quant/lightning_indexer_quant_torch_adpt.h"
+#include "recurrent_gated_delta_rule/recurrent_gated_delta_rule_torch_adpt.h"
 #include <c10/core/Device.h>
 #include <c10/util/Exception.h>
 #include <c10/util/Logging.h>
@@ -697,27 +698,6 @@ std::vector<at::Tensor> moe_grouped_matmul(
     return y;
 }
 
-at::Tensor npu_recurrent_gated_delta_rule(
-    const at::Tensor& query,
-    const at::Tensor& key,
-    const at::Tensor& value,
-    const at::Tensor& g,
-    const at::Tensor& beta,
-    at::Tensor& state,
-    float scale,
-    const at::Tensor& actual_seq_lengths,
-    const at::Tensor& ssm_state_indices,
-    const c10::optional<at::Tensor>& num_accepted_tokens)
-{
-    at::Tensor out = at::empty_like(query);
-    c10::optional<at::Tensor> gk = c10::nullopt;
-    EXEC_NPU_CMD(aclnnRecurrentGatedDeltaRule,
-                 query, key, value, beta, state,
-                 actual_seq_lengths, ssm_state_indices,
-                 g, gk, num_accepted_tokens, scale, out);
-    return out;
-}
-
 } // namespace vllm_ascend
 
 TORCH_LIBRARY_EXPAND(CONCAT(_C, _ascend), ops)
@@ -931,7 +911,7 @@ TORCH_LIBRARY_EXPAND(CONCAT(_C, _ascend), ops)
         "  Tensor query,"
         "  Tensor key,"
         "  Tensor value,"
-        "  Tensor g,"
+        "  Tensor? g,"
         "  Tensor beta,"
         "  Tensor(a!) state,"
         "  float scale,"
