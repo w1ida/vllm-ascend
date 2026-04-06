@@ -31,7 +31,8 @@ at::Tensor npu_recurrent_gated_delta_rule(
     const at::Tensor& ssm_state_indices,
     const c10::optional<at::Tensor>& num_accepted_tokens)
 {
-    at::Tensor out = at::empty_like(query);
+    at::Tensor out = at::empty({value.size(0), value.size(1), value.size(2)},
+                               value.options().dtype(at::kBFloat16));
     c10::optional<at::Tensor> gk = c10::nullopt;
     float scale_f = static_cast<float>(scale);
     EXEC_NPU_CMD(aclnnRecurrentGatedDeltaRule,
