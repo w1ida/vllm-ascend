@@ -112,7 +112,7 @@ class AscendQwen3_5GatedDeltaNet(Qwen3_5GatedDeltaNet):
 
         # NOTE: The processing logic of Qwen3_5GatedDeltaNet is the same as Qwen3NextGatedDeltaNet.
         # `torch_npu.npu_recurrent_gated_delta_rule` does not yet support float32 ssm_state.
-        # We use `torch.ops._C_ascend.npu_recurrent_gated_delta_rule`, a custom operator built
+        # We use `torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32`, a custom operator built
         # into vllm-ascend/csrc from the ops-transformer implementation that adds FP32 state support.
         # This patch can be removed once the CANN SDK ships the updated operator.
 
@@ -293,7 +293,7 @@ class AscendQwen3_5GatedDeltaNet(Qwen3_5GatedDeltaNet):
             actual_seq_lengths = (
                 non_spec_query_start_loc[1:] - non_spec_query_start_loc[:-1]
             ).to(torch.int32)
-            core_attn_out_non_spec = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(
+            core_attn_out_non_spec = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(
                 query=query_non_spec.squeeze(0),
                 key=key_non_spec.squeeze(0),
                 value=value_non_spec.squeeze(0),

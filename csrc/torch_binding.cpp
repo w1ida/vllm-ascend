@@ -907,7 +907,7 @@ TORCH_LIBRARY_EXPAND(CONCAT(_C, _ascend), ops)
     // This operator provides FP32 ssm_state support for Qwen3.5 GatedDeltaNet decode,
     // replacing the slower Triton fallback until the CANN SDK is updated.
     ops.def(
-        "npu_recurrent_gated_delta_rule("
+        "npu_recurrent_gated_delta_rule_fp32("
         "  Tensor query,"
         "  Tensor key,"
         "  Tensor value,"
@@ -920,8 +920,8 @@ TORCH_LIBRARY_EXPAND(CONCAT(_C, _ascend), ops)
         "  Tensor? num_accepted_tokens"
         ") -> Tensor"
     );
-    ops.impl("npu_recurrent_gated_delta_rule", torch::kPrivateUse1,
-             &vllm_ascend::npu_recurrent_gated_delta_rule);
+    ops.impl("npu_recurrent_gated_delta_rule_fp32", torch::kPrivateUse1,
+             &vllm_ascend::npu_recurrent_gated_delta_rule_fp32);
     ops.def(
         "moe_grouped_matmul("
             "Tensor x,"

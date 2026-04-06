@@ -14,7 +14,7 @@
 # limitations under the License.
 # This file is a part of the vllm-ascend project.
 #
-"""Unit tests for torch.ops._C_ascend.npu_recurrent_gated_delta_rule.
+"""Unit tests for torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32.
 
 Operator shapes (from tiling / infershape sources):
   query  : (T, NK, DK)   bf16
@@ -153,13 +153,13 @@ class TestRecurrentGatedDeltaRuleOutputShape:
 
     def test_bf16_state_output_shape_and_dtype(self):
         inputs = _make_inputs(torch.bfloat16)
-        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         assert out.shape == (T, NV, DV), f"Expected shape {(T, NV, DV)}, got {out.shape}"
         assert out.dtype == torch.bfloat16, f"Expected bf16 output, got {out.dtype}"
 
     def test_fp32_state_output_shape_and_dtype(self):
         inputs = _make_inputs(torch.float32)
-        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         assert out.shape == (T, NV, DV), f"Expected shape {(T, NV, DV)}, got {out.shape}"
         assert out.dtype == torch.bfloat16, f"Expected bf16 output, got {out.dtype}"
 
@@ -170,14 +170,14 @@ class TestRecurrentGatedDeltaRuleStateMutation:
     def test_bf16_state_is_mutated(self):
         inputs = _make_inputs(torch.bfloat16)
         state_before = inputs["state"].clone()
-        torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         assert not torch.equal(inputs["state"], state_before), \
             "state tensor should have been updated in-place (bf16)"
 
     def test_fp32_state_is_mutated(self):
         inputs = _make_inputs(torch.float32)
         state_before = inputs["state"].clone()
-        torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         assert not torch.equal(inputs["state"], state_before), \
             "state tensor should have been updated in-place (fp32)"
 
@@ -189,7 +189,7 @@ class TestRecurrentGatedDeltaRuleStateSlotIndexing:
         inputs = _make_inputs(torch.bfloat16)
         # Sequences use slots 0 and 1; slots 2 and 3 should remain zero
         state_ref = inputs["state"].clone()
-        torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         updated_state = inputs["state"]
 
         # Slots that were written (indices 0 and 1) should have changed
@@ -221,7 +221,7 @@ class TestRecurrentGatedDeltaRuleBatchDecode:
         actual_seq_lengths = torch.ones(batch_size, dtype=torch.int32, device=device)
         ssm_state_indices  = torch.arange(batch_size, dtype=torch.int32, device=device)
 
-        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(
+        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(
             query=query,
             key=key,
             value=value,
@@ -246,7 +246,7 @@ class TestRecurrentGatedDeltaRuleOptionalParams:
         inputs = _make_inputs(torch.bfloat16)
         # All sequences accepted exactly 1 token
         inputs["num_accepted_tokens"] = torch.ones(BATCH, dtype=torch.int32, device=device)
-        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         assert out.shape == (T, NV, DV)
         assert out.dtype == torch.bfloat16
 
@@ -254,7 +254,7 @@ class TestRecurrentGatedDeltaRuleOptionalParams:
         """g is OPTIONAL according to the op definition; passing None should work."""
         inputs = _make_inputs(torch.bfloat16)
         inputs["g"] = None
-        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         assert out.shape == (T, NV, DV)
         assert out.dtype == torch.bfloat16
 
@@ -265,7 +265,7 @@ class TestRecurrentGatedDeltaRuleNumerical:
     def test_outputs_are_finite(self):
         """Output should contain no NaN or Inf values."""
         inputs = _make_inputs(torch.bfloat16)
-        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         out_f32 = out.float()
         assert torch.isfinite(out_f32).all(), \
             "Non-finite values in output"
@@ -273,7 +273,7 @@ class TestRecurrentGatedDeltaRuleNumerical:
     def test_fp32_state_outputs_are_finite(self):
         """fp32 state: output should contain no NaN or Inf values."""
         inputs = _make_inputs(torch.float32)
-        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         out_f32 = out.float()
         assert torch.isfinite(out_f32).all(), \
             "Non-finite values in output (fp32 state)"
@@ -346,7 +346,7 @@ class TestRecurrentGatedDeltaRuleVsTriton:
         inputs = _make_inputs(torch.bfloat16)
 
         # --- NPU op ---
-        npu_out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        npu_out = torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
 
         # --- triton / pytorch-reference ---
         tk = _npu_to_triton_inputs(inputs)
@@ -375,13 +375,13 @@ class TestRecurrentGatedDeltaRuleVsTriton:
         tk = _npu_to_triton_inputs(inputs)
 
         # --- NPU op (state mutated in-place) ---
-        torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         npu_state = inputs["state"].clone()  # snapshot after update
 
         # Reset both states to zeros, then re-run for a clean reference
         inputs["state"].zero_()
         tk["initial_state"].zero_()
-        torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+        torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         _, ref_state = _triton_reference(**tk)
         # ref_state: (S, NV, DK, DV)
 
@@ -413,7 +413,7 @@ class TestRecurrentGatedDeltaRulePerformance:
 
         # --- warm-up ---
         for _ in range(self.N_WARMUP):
-            torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+            torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         for _ in range(self.N_WARMUP):
             _triton_reference(**tk)
 
@@ -421,7 +421,7 @@ class TestRecurrentGatedDeltaRulePerformance:
         _npu_sync()
         t0 = time.perf_counter()
         for _ in range(self.N_ITERS):
-            torch.ops._C_ascend.npu_recurrent_gated_delta_rule(**inputs)
+            torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         _npu_sync()
         npu_ms = (time.perf_counter() - t0) * 1000 / self.N_ITERS
 

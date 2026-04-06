@@ -19,7 +19,7 @@
 
 namespace vllm_ascend {
 
-at::Tensor npu_recurrent_gated_delta_rule(
+at::Tensor npu_recurrent_gated_delta_rule_fp32(
     const at::Tensor& query,
     const at::Tensor& key,
     const at::Tensor& value,
