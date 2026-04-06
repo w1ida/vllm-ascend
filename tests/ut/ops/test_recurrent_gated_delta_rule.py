@@ -121,8 +121,8 @@ def _make_inputs(state_dtype: torch.dtype):
     query = torch.randn(T, NK, DK, dtype=torch.bfloat16, device=device)
     key   = torch.randn(T, NK, DK, dtype=torch.bfloat16, device=device)
     value = torch.randn(T, NV, DV, dtype=torch.bfloat16, device=device)
-    beta  = torch.randn(T, NK, dtype=torch.bfloat16, device=device)
-    state = torch.zeros(S, NK, DK, DV, dtype=state_dtype, device=device)
+    beta  = torch.randn(T, NV, dtype=torch.bfloat16, device=device)  # (T, NV) per tiling
+    state = torch.zeros(S, NV, DV, DK, dtype=state_dtype, device=device)  # (S, NV, DV, DK) per tiling
     g     = torch.sigmoid(torch.randn(T, NV, dtype=torch.float32, device=device))
 
     # Decode: each of the B sequences contributes exactly 1 token
@@ -215,8 +215,8 @@ class TestRecurrentGatedDeltaRuleBatchDecode:
         query = torch.randn(t, NK, DK, dtype=torch.bfloat16, device=device)
         key   = torch.randn(t, NK, DK, dtype=torch.bfloat16, device=device)
         value = torch.randn(t, NV, DV, dtype=torch.bfloat16, device=device)
-        beta  = torch.randn(t, NK, dtype=torch.bfloat16, device=device)
-        state = torch.zeros(batch_size + 2, NK, DK, DV, dtype=torch.bfloat16, device=device)
+        beta  = torch.randn(t, NV, dtype=torch.bfloat16, device=device)  # (T, NV) per tiling
+        state = torch.zeros(batch_size + 2, NV, DV, DK, dtype=torch.bfloat16, device=device)  # (S, NV, DV, DK)
         g     = torch.sigmoid(torch.randn(t, NV, dtype=torch.float32, device=device))
         actual_seq_lengths = torch.ones(batch_size, dtype=torch.int32, device=device)
         ssm_state_indices  = torch.arange(batch_size, dtype=torch.int32, device=device)
@@ -317,7 +317,7 @@ def _npu_to_triton_inputs(inputs: dict) -> dict:
         k=inputs["key"].unsqueeze(0),             # (1, T, NK, DK)
         v=inputs["value"].unsqueeze(0),           # (1, T, NV, DV)
         g=g.unsqueeze(0) if g is not None else None,  # (1, T, NV)
-        beta=inputs["beta"].unsqueeze(0),         # (1, T, NK)
+        beta=inputs["beta"].unsqueeze(0),         # (1, T, NV)
         scale=inputs["scale"],
         initial_state=initial_state,
         inplace_final_state=True,
@@ -377,6 +377,7 @@ class TestRecurrentGatedDeltaRuleVsTriton:
         # --- NPU op (state mutated in-place) ---
         torch.ops._C_ascend.npu_recurrent_gated_delta_rule_fp32(**inputs)
         npu_state = inputs["state"].clone()  # snapshot after update
+        # NPU state shape: (S, NV, DV, DK)
 
         # Reset both states to zeros, then re-run for a clean reference
         inputs["state"].zero_()
@@ -385,9 +386,13 @@ class TestRecurrentGatedDeltaRuleVsTriton:
         _, ref_state = _triton_reference(**tk)
         # ref_state: (S, NV, DK, DV)
 
+        # NPU state layout is (S, NV, DV, DK) while triton uses (S, NV, DK, DV)
+        # Transpose the last two dimensions to align them
+        npu_state_transposed = npu_state.transpose(-2, -1)  # (S, NV, DK, DV)
+
         used_idx = inputs["ssm_state_indices"].tolist()
         torch.testing.assert_close(
-            npu_state[used_idx].float().cpu(),
+            npu_state_transposed[used_idx].float().cpu(),
             ref_state[used_idx].float().cpu(),
             rtol=1e-2,
             atol=1e-2,

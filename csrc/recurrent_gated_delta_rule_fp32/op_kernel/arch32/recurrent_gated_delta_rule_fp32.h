@@ -238,16 +238,31 @@ private:
     __aicore__ inline void MatVecMul(const LocalTensor<float> &cubeTensor, const LocalTensor<float> &vecTensor,
                                           LocalTensor<float> &dstTensor, uint32_t cols, bool isAdd)
     {
+        // cubeTensor: (cols, alignK_), vecTensor: (alignK_), dstTensor: (cols, alignK_)
+        // 逐元素乘法：dst[j, k] = cube[j, k] * vec[k]
+        // 使用 Muls 实现每行与 vecTensor 的元素级乘法
+        // Muls(dst, src, value, count) 是 dst[i] = src[i] * value
+        // 需要将 vecTensor broadcast 到 (cols, alignK_) 然后做元素级乘法
+
+        // 方法：先将 vecTensor broadcast 到 dstTensor，然后做元素级乘法
+        // 但更简单的是直接使用已有的 Broadcast 函数
+        uint32_t vecShape[2] = {1, alignK_};
+        uint32_t dstShape[2] = {cols, alignK_};
+        Broadcast<float, 2, 1>(dstTensor, vecTensor, dstShape, vecShape); // 将 (1, alignK_) broadcast 到 (cols, alignK_)
+        AscendC::PipeBarrier<PIPE_V>();
+
+        // 现在 dstTensor 已经是广播后的 vecTensor，做元素级乘法
+        // dst[j*alignK_ + i] = cube[j*alignK_ + i] * dst[j*alignK_ + i] (即 vec[i])
         uint8_t repeatStride = alignK_ / FP32_NUM_PER_BLOCK;
         for (uint32_t i = 0; i < alignK_; i += REPEAT_LENTH) {
             uint64_t mask = Std::min(REPEAT_LENTH, alignK_ - i);
             for (uint32_t j = 0; j < cols; j += MAX_REPEAT_TIME) {
                 uint64_t repeatTime = Std::min(MAX_REPEAT_TIME, cols - j);
                 if (isAdd) {
-                    MulAddDst(dstTensor[j * alignK_ + i], cubeTensor[j * alignK_ + i], vecTensor[i], mask, repeatTime,
+                    MulAddDst(dstTensor[j * alignK_ + i], cubeTensor[j * alignK_ + i], dstTensor[j * alignK_ + i], mask, repeatTime,
                               {1, 1, 1, repeatStride, repeatStride, 0});
                 } else {
-                    Mul(dstTensor[j * alignK_ + i], cubeTensor[j * alignK_ + i], vecTensor[i], mask, repeatTime,
+                    Mul(dstTensor[j * alignK_ + i], cubeTensor[j * alignK_ + i], dstTensor[j * alignK_ + i], mask, repeatTime,
                         {1, 1, 1, repeatStride, repeatStride, 0});
                 }
             }
